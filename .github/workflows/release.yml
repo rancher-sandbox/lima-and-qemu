@@ -1,0 +1,42 @@
+name: Release
+
+on:
+  push:
+    tags:
+    - 'v*'
+    - 'test-v*'
+
+env:
+  GO111MODULE: on
+
+jobs:
+  release:
+    runs-on: macos-10.15
+    timeout-minutes: 20
+    steps:
+    - uses: actions/setup-go@v2
+      with:
+        go-version: 1.16.x
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 1
+        submodules: recursive
+    - name: Make
+      run: make -C src/lima
+    - name: Install
+      run: sudo make -C src/lima install
+    - name: Install dependencies
+      # QEMU:      required by Lima itself
+      # bash:      required by test-example.sh (OS version of bash is too old)
+      # coreutils: required by test-example.sh for the "timeout" command
+      run: brew install qemu bash coreutils
+    - name: Create lima-and-qemu tarball
+      run: |
+        ./src/lima/hack/lima-and-qemu.pl
+        sha512sum src/lima/lima-and-qemu.tar.gz > src/lima/lima-and-qemu.tar.gz.sha512sum
+    - name: "Create release"
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        tag="${GITHUB_REF##*/}"
+        hub release create -a src/lima/lima-and-qemu.tar.gz -a src/lima/lima-and-qemu.tar.gz.sha512sum -F <(echo ${tag}) --draft "${tag}"
