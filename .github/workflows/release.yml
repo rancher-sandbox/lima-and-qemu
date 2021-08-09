@@ -21,6 +21,7 @@ jobs:
       with:
         fetch-depth: 1
         submodules: recursive
+        persist-credentials: false
     - name: Make
       run: make -C src/lima
     - name: Install
