@@ -30,7 +30,10 @@ jobs:
       # QEMU:      required by Lima itself
       # bash:      required by test-example.sh (OS version of bash is too old)
       # coreutils: required by test-example.sh for the "timeout" command
-      run: brew install qemu bash coreutils
+      run: |
+        brew update
+        brew install qemu bash coreutils
+        brew upgrade
     - name: Create lima-and-qemu tarball
       run: |
         ./src/lima/hack/lima-and-qemu.pl
