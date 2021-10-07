@@ -10,7 +10,7 @@ env:
   GO111MODULE: on
 
 jobs:
-  release:
+  macos-build:
     runs-on: macos-10.15
     timeout-minutes: 20
     steps:
@@ -37,10 +37,87 @@ jobs:
     - name: Create lima-and-qemu tarball
       run: |
         ./src/lima/hack/lima-and-qemu.pl
-        sha512sum src/lima/lima-and-qemu.tar.gz > src/lima/lima-and-qemu.tar.gz.sha512sum
+        mv src/lima/lima-and-qemu.tar.gz src/lima/lima-and-qemu.MacOS.tar.gz
+        sha512sum src/lima/lima-and-qemu.MacOS.tar.gz > src/lima/lima-and-qemu.MacOS.tar.gz.sha512sum
+    - name: Upload MacOS build
+      uses: actions/upload-artifact@v2
+      with:
+        name: lima-and-qemu.MacOS
+        path: ./src/lima/lima-and-qemu.MacOS*
+        if-no-files-found: error
+
+  linux-build:
+    runs-on: ubuntu-18.04
+    timeout-minutes: 20
+    steps:
+    - uses: actions/setup-go@v2
+      with:
+        go-version: 1.16.x
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 1
+        submodules: recursive
+        persist-credentials: false
+    - name: Lima install on Linux
+      run: |
+        dest="$(pwd)/lima-and-qemu"
+        echo "dest=${dest}" >> $GITHUB_ENV
+        make -C src/lima
+        make -C src/lima install DESTDIR="${dest}" PREFIX="/usr"
+    - name: Install Linux dependecies
+      # QEMU:      required by Lima itself
+      env:
+        QEMU_SHA256SUM: eebc089db3414bbeedf1e464beda0a7515aad30f73261abc246c9b27503a3c96
+        QEMU_VERSION: 6.1.0
+      run: |
+        sudo apt-get update
+        sudo apt-get install -yq ninja-build
+        df -h
+        wget https://download.qemu.org/qemu-${QEMU_VERSION}.tar.xz -O qemu.tar.xz
+        [ "${QEMU_SHA256SUM}" = "$(sha256sum qemu.tar.xz | head -c 64)" ] || exit 1
+        mkdir qemu
+        tar xaf qemu.tar.xz -C qemu --strip-components=1
+        mkdir qemu/build
+        cd qemu/build
+        ../configure --prefix="/usr" --disable-user --enable-kvm --target-list=x86_64-softmmu 
+        make -j$(nproc)
+        make install DESTDIR=${{ env.dest }}
+    - name: Create Linux lima-and-qemu tarball
+      run: |
+        src/appdir-lima-and-qemu.sh "${{ env.dest }}/usr"
+        mv lima-and-qemu.tar.gz lima-and-qemu.Linux.tar.gz
+        sha512sum lima-and-qemu.Linux.tar.gz > lima-and-qemu.Linux.tar.gz.sha512sum
+    - name: Upload Linux build
+      uses: actions/upload-artifact@v2
+      with:
+        name: lima-and-qemu.Linux
+        path: lima-and-qemu.Linux*
+        if-no-files-found: error
+
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs:
+    - macos-build
+    - linux-build
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 1
+        persist-credentials: false
+    - name: Download Linux build
+      uses: actions/download-artifact@v2
+      with:
+        name: lima-and-qemu.Linux
+        path: build
+    - name: Download MacOS build
+      uses: actions/download-artifact@v2
+      with:
+        name: lima-and-qemu.MacOS
+        path: build
     - name: "Create release"
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         tag="${GITHUB_REF##*/}"
-        hub release create -a src/lima/lima-and-qemu.tar.gz -a src/lima/lima-and-qemu.tar.gz.sha512sum -F <(echo ${tag}) --draft "${tag}"
+        hub release create -a build/lima-and-qemu.Linux.tar.gz -a build/lima-and-qemu.Linux.tar.gz.sha512sum -a build/lima-and-qemu.MacOS.tar.gz -a build/lima-and-qemu.MacOS.tar.gz.sha512sum -m "${tag}" --draft "${tag}"
