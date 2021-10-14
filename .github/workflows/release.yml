@@ -84,7 +84,7 @@ jobs:
         make install DESTDIR=${{ env.dest }}
     - name: Create Linux lima-and-qemu tarball
       run: |
-        src/appdir-lima-and-qemu.sh "${{ env.dest }}/usr"
+        bin/appdir-lima-and-qemu.sh "${{ env.dest }}/usr"
         mv lima-and-qemu.tar.gz lima-and-qemu.Linux.tar.gz
         sha512sum lima-and-qemu.Linux.tar.gz > lima-and-qemu.Linux.tar.gz.sha512sum
     - name: Upload Linux build
