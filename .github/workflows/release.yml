@@ -42,8 +42,8 @@ jobs:
     - name: Upload MacOS build
       uses: actions/upload-artifact@v2
       with:
-        name: lima-and-qemu.MacOS
-        path: ./src/lima/lima-and-qemu.MacOS*
+        name: lima-and-qemu.macos
+        path: ./src/lima/lima-and-qemu.macos*
         if-no-files-found: error
 
   linux-build:
@@ -85,13 +85,13 @@ jobs:
     - name: Create Linux lima-and-qemu tarball
       run: |
         bin/appdir-lima-and-qemu.sh "${{ env.dest }}/usr"
-        mv lima-and-qemu.tar.gz lima-and-qemu.Linux.tar.gz
-        sha512sum lima-and-qemu.Linux.tar.gz > lima-and-qemu.Linux.tar.gz.sha512sum
+        mv lima-and-qemu.tar.gz lima-and-qemu.linux.tar.gz
+        sha512sum lima-and-qemu.linux.tar.gz > lima-and-qemu.linux.tar.gz.sha512sum
     - name: Upload Linux build
       uses: actions/upload-artifact@v2
       with:
-        name: lima-and-qemu.Linux
-        path: lima-and-qemu.Linux*
+        name: lima-and-qemu.linux
+        path: lima-and-qemu.linux*
         if-no-files-found: error
 
   release:
@@ -108,16 +108,16 @@ jobs:
     - name: Download Linux build
       uses: actions/download-artifact@v2
       with:
-        name: lima-and-qemu.Linux
+        name: lima-and-qemu.linux
         path: build
     - name: Download MacOS build
       uses: actions/download-artifact@v2
       with:
-        name: lima-and-qemu.MacOS
+        name: lima-and-qemu.macos
         path: build
     - name: "Create release"
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         tag="${GITHUB_REF##*/}"
-        hub release create -a build/lima-and-qemu.Linux.tar.gz -a build/lima-and-qemu.Linux.tar.gz.sha512sum -a build/lima-and-qemu.MacOS.tar.gz -a build/lima-and-qemu.MacOS.tar.gz.sha512sum -m "${tag}" --draft "${tag}"
+        hub release create -a build/lima-and-qemu.linux.tar.gz -a build/lima-and-qemu.linux.tar.gz.sha512sum -a build/lima-and-qemu.macos.tar.gz -a build/lima-and-qemu.macos.tar.gz.sha512sum -m "${tag}" --draft "${tag}"
