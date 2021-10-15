@@ -50,7 +50,7 @@ print "sudo may prompt for password to run opensnoop\n";
 system("sudo -b opensnoop >$opensnoop 2>/dev/null");
 sleep(1) until -s $opensnoop;
 
-my $repo_root = dirname($FindBin::Bin);
+my $repo_root = join('/', dirname($FindBin::Bin), 'src', 'lima');
 for my $example (@ARGV) {
     my $config = "$repo_root/examples/$example.yaml", ;
     die "Config $config not found" unless -f $config;
