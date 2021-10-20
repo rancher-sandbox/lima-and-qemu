@@ -97,7 +97,9 @@ jobs:
         tar xaf qemu.tar.xz -C qemu --strip-components=1
         mkdir qemu/build
         cd qemu/build
-        ../configure --prefix="/usr" --disable-user --enable-kvm --target-list=x86_64-softmmu 
+        ../configure --prefix="/usr" --disable-vnc --disable-sdl --disable-gtk \
+                     --disable-curses --disable-iconv --disable-gio \
+                     --disable-user --enable-kvm --target-list=x86_64-softmmu 
         make -j$(nproc)
         make install DESTDIR=${{ env.dest }}
     - name: Create Linux lima-and-qemu tarball
