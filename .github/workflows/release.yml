@@ -22,18 +22,36 @@ jobs:
         fetch-depth: 1
         submodules: recursive
         persist-credentials: false
-    - name: Make
-      run: make -C src/lima
-    - name: Install
-      run: sudo make -C src/lima install
+
+    - name: Make and install Lima
+      run: make -C src/lima all install
+
     - name: Install dependencies
       # QEMU:      required by Lima itself
       # bash:      required by test-example.sh (OS version of bash is too old)
       # coreutils: required by test-example.sh for the "timeout" command
+      # autoconf:  required for building vde
+      # automake:  required for building vde
       run: |
         brew update
         brew install qemu bash coreutils
+        brew install autoconf automake
         brew upgrade
+
+    - name: Make and Install VDE
+      run: |
+        cd src/vde-2
+        autoreconf -fis
+        ./configure --prefix=/opt/vde
+        make
+        sudo make install
+
+    - name: Make and Install vde_vmnet
+      run: |
+        cd src/vde_vmnet
+        make PREFIX=/opt/vde
+        sudo make PREFIX=/opt/vde install
+
     - name: Create lima-and-qemu tarball
       run: |
         ./bin/lima-and-qemu.pl
