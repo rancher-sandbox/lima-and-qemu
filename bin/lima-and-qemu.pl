@@ -134,6 +134,10 @@ if (-f "$opt_vde/bin/vde_vmnet") {
     }
 }
 
+# Ensure all files are writable by the owner; this is required for Squirrel.Mac
+# to remove the quarantine xattr when applying updates.
+system("chmod -R u+w /tmp/$dist")
+
 unlink("$repo_root/$dist.tar.gz");
 system("tar cvfz $repo_root/$dist.tar.gz -C /tmp/$dist $files");
 
