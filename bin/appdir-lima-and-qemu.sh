@@ -46,15 +46,16 @@ excludeLibs+="libresolv.so.2 "
 excludeLibs+="libdl.so.2 "
 excludeLibs+="librt.so.1 "
 excludeLibs+="libuuid.so.1 "
+excludeLibs+="libdl.so.2 "
 
 firmwareOfInterest=" bios-256k.bin edk2-x86_64-code.fd efi-virtio.rom kvmvapic.bin vgabios-virtio.bin "
 executablesOfInterest=" qemu-system-x86_64 qemu-img limactl "
 
 mkdir -p "${appDir}/lib"
 
-linkedLibs=$(ldd "${appDir}/bin/qemu-system-x86_64" | grep " => /" | cut -d" " -f3)
-linkedLibs+=$(ldd "${appDir}/bin/qemu-img" | grep " => /" | cut -d" " -f3)
-for lib in $(echo ${linkedLibs} | sort | uniq ); do
+linkedLibs=$(ldd "${appDir}/bin/qemu-system-x86_64" | grep " => /" | cut -d" " -f3)$'\n'
+linkedLibs+=$(ldd "${appDir}/bin/qemu-img" | grep " => /" | cut -d" " -f3)$'\n'
+for lib in $(echo "${linkedLibs}" | sort | uniq ); do
   if [[ "${excludeLibs}" =~ \ $(basename ${lib})\  ]]; then
     continue
   fi
