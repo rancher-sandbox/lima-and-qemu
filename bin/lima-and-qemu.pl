@@ -129,7 +129,7 @@ if (-f "$opt_vde/bin/vde_vmnet") {
     system("mkdir -p /tmp/$dist/vde/bin");
     for my $tool (qw(vde_switch vde_vmnet)) {
         system("cp $opt_vde/bin/$tool /tmp/$dist/vde/bin/$tool");
-        system "install_name_tool -change $opt_vde/lib/$dylib \@executable_path/../$dylib /tmp/$dist/vde/bin/$tool 2>&1";
+        system "install_name_tool -change $opt_vde/lib/$dylib \@executable_path/../lib/$dylib /tmp/$dist/vde/bin/$tool 2>&1";
         $files .= " vde/bin/$tool";
     }
 }
