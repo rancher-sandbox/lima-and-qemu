@@ -4,6 +4,9 @@ use warnings;
 
 use FindBin qw();
 
+my $proc = qx(uname -p);
+my $arch = $proc =~ /86/ ? "x86_64" : "aarch64";
+
 # By default capture both legacy firmware (alpine) and UFI (default) usage
 @ARGV = qw(alpine default) unless @ARGV;
 
@@ -30,10 +33,10 @@ use FindBin qw();
 # It shows the following binaries from /usr/local are called:
 
 my %deps;
-my $install_dir = "/usr/local";
+my $install_dir = $arch eq "x86_64" ? "/usr/local" : "/opt/homebrew";
 record("$install_dir/bin/limactl");
 record("$install_dir/bin/qemu-img");
-record("$install_dir/bin/qemu-system-x86_64");
+record("$install_dir/bin/qemu-system-$arch");
 
 # qemu 6.1.0 doesn't use the symlink to access data files anymore
 # but we need to include it because we replace the symlinks in
@@ -101,11 +104,12 @@ for my $file (keys %deps) {
     while (<$fh>) {
         my($dylib) = m|$install_dir/(\S+)| or next;
         my $grep = "";
-        if ($file =~ m|bin/qemu-system-x86_64$|) {
+        if ($file =~ m|bin/qemu-system-$arch$|) {
             # qemu-system-* is already signed with an entitlement to use the hypervisor framework
             $grep = "| grep -v 'will invalidate the code signature'";
             $resign{$copy}++;
         }
+        $resign{$copy}++ if $arch eq "aarch64";
         system "install_name_tool -change $install_dir/$dylib \@executable_path/../$dylib $copy 2>&1 $grep";
     }
     close($fh);
