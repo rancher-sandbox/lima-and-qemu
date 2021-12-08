@@ -6,4 +6,4 @@
 	url = https://github.com/lima-vm/vde_vmnet
 [submodule "src/vde-2"]
 	path = src/vde-2
-	url = https://github.com/virtualsquare/vde-2.git
+	url = https://github.com/rancher-sandbox/vde-2.git
