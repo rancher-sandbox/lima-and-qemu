@@ -121,21 +121,12 @@ for my $file (keys %resign) {
 
 my $files = join(" ", map s|^$install_dir/||r, keys %deps);
 
-# Package vde_vmnet and prerequisites from /opt/vde → vde in the tarball
-my $opt_vde = "/opt/vde";
-die if -e "/tmp/$dist/vde";
-if (-f "$opt_vde/bin/vde_vmnet") {
-    my $dylib = "libvdeplug.3.dylib";
-    system("mkdir -p /tmp/$dist/vde/lib");
-    system("cp $opt_vde/lib/$dylib /tmp/$dist/vde/lib/$dylib");
-    $files .= " vde/lib/$dylib";
-
-    system("mkdir -p /tmp/$dist/vde/bin");
-    for my $tool (qw(vde_switch vde_vmnet)) {
-        system("cp $opt_vde/bin/$tool /tmp/$dist/vde/bin/$tool");
-        system "install_name_tool -change $opt_vde/lib/$dylib \@executable_path/../lib/$dylib /tmp/$dist/vde/bin/$tool 2>&1";
-        $files .= " vde/bin/$tool";
-    }
+# Package socket_vmnet
+die if -e "/tmp/$dist/socket_vmnet";
+if (-f "/opt/socket_vmnet/bin/socket_vmnet") {
+    system("mkdir -p /tmp/$dist/socket_vmnet/bin");
+    system("cp /opt/socket_vmnet/bin/socket_vmnet /tmp/$dist/socket_vmnet/bin/socket_vmnet");
+    $files .= " socket_vmnet/bin/socket_vmnet";
 }
 
 # Ensure all files are writable by the owner; this is required for Squirrel.Mac

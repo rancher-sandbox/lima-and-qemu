@@ -7,3 +7,6 @@
 [submodule "src/vde-2"]
 	path = src/vde-2
 	url = https://github.com/rancher-sandbox/vde-2.git
+[submodule "src/socket_vmnet"]
+	path = src/socket_vmnet
+	url = https://github.com/lima-vm/socket_vmnet
