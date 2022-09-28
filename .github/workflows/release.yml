@@ -50,12 +50,12 @@ jobs:
       run: |
         cd src/vde_vmnet
         make PREFIX=/opt/vde
-        sudo make PREFIX=/opt/vde install
+        sudo make PREFIX=/opt/vde install.bin
 
     - name: Make & install socket_vmnet
       run: |
         cd src/socket_vmnet
-        sudo make PREFIX=/opt/socket_vmnet install
+        sudo make PREFIX=/opt/socket_vmnet install.bin
 
     - name: Create lima-and-qemu tarball
       run: |
