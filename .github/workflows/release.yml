@@ -39,7 +39,7 @@ jobs:
         brew upgrade
 
     - name: Make and Install VDE
-       run: |
+      run: |
         cd src/vde-2
         autoreconf -fis
         ./configure --prefix=/opt/vde
