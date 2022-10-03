@@ -1,6 +1,6 @@
 [submodule "src/lima"]
 	path = src/lima
-	url = https://github.com/lima-vm/lima
+	url = https://github.com/rancher-sandbox/lima
 [submodule "src/vde_vmnet"]
 	path = src/vde_vmnet
 	url = https://github.com/lima-vm/vde_vmnet
