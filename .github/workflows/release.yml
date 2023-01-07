@@ -26,6 +26,11 @@ jobs:
     - name: Remove pre-installed Colima and Lima
       run: brew uninstall colima lima
 
+    - name: Switch Xcode version to enable macOS 13 SDK
+      run: |
+        sudo xcode-select --switch /Applications/Xcode_14.1.app
+        xcrun --show-sdk-version
+
     - name: Make and install Lima
       run: make -C src/lima all install
 
