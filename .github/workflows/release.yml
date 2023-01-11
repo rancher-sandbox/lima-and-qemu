@@ -105,6 +105,10 @@ jobs:
         sudo xcode-select --switch /Applications/Xcode_14.2.app
         xcrun --show-sdk-version
 
+    - name: Install dependencies
+      # coreutils: required to create a sha 512 sum
+      run: brew install coreutils
+
     - name: Remove pre-installed Colima and Lima
       run: brew uninstall colima lima
 
