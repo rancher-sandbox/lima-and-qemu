@@ -179,6 +179,7 @@ jobs:
     timeout-minutes: 5
     needs:
     - macos-build
+    - macos-ventura-build
     - linux-build
     steps:
     - uses: actions/checkout@v2
