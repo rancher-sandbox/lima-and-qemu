@@ -105,6 +105,10 @@ jobs:
         sudo xcode-select --switch /Applications/Xcode_14.2.app
         xcrun --show-sdk-version
 
+    - name: Install dependencies
+      # coreutils: required to create a sha 512 sum
+      run: brew install coreutils
+
     - name: Remove pre-installed Colima and Lima
       run: brew uninstall colima lima
 
@@ -196,6 +200,11 @@ jobs:
       uses: actions/download-artifact@v2
       with:
         name: lima-and-qemu.macos
+        path: build
+    - name: Download Ventura build
+      uses: actions/download-artifact@v2
+      with:
+        name: limactl.ventura
         path: build
     - name: "Create release"
       env:
