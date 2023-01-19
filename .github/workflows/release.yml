@@ -74,14 +74,14 @@ jobs:
     - name: Create lima-and-qemu tarball
       run: |
         ./bin/lima-and-qemu.pl
-        mv src/lima/lima-and-qemu.tar.gz src/lima/lima-and-qemu.macos.tar.gz
-        sha512sum src/lima/lima-and-qemu.macos.tar.gz > src/lima/lima-and-qemu.macos.tar.gz.sha512sum
+        mv lima-and-qemu.tar.gz lima-and-qemu.macos.tar.gz
+        sha512sum lima-and-qemu.macos.tar.gz > lima-and-qemu.macos.tar.gz.sha512sum
 
     - name: Upload MacOS build
       uses: actions/upload-artifact@v2
       with:
         name: lima-and-qemu.macos
-        path: ./src/lima/lima-and-qemu.macos*
+        path: lima-and-qemu.macos*
         if-no-files-found: error
 
   macos-ventura-build:
@@ -116,17 +116,18 @@ jobs:
       run: make -C src/lima all install
 
     - name: Create Ventura limactl tarball
+      working-directory: src/lima
       run: |
-        make -C src/lima _output/bin/limactl
-        chmod u+w src/lima/_output/bin/limactl
-        tar cfz src/lima/limactl.ventura.tar.gz -C src/lima/_output/bin limactl
-        sha512sum src/lima/limactl.ventura.tar.gz > src/lima/limactl.ventura.tar.gz.sha512sum
+        make _output/bin/limactl
+        chmod u+w _output/bin/limactl
+        tar cfz limactl.ventura.tar.gz -C _output/bin limactl
+        sha512sum limactl.ventura.tar.gz > limactl.ventura.tar.gz.sha512sum
 
     - name: Upload Ventura build
       uses: actions/upload-artifact@v2
       with:
         name: limactl.ventura
-        path: ./src/lima/limactl.ventura*
+        path: src/lima/limactl.ventura*
         if-no-files-found: error
 
   linux-build:

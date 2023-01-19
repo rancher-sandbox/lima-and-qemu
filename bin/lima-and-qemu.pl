@@ -53,9 +53,9 @@ print "sudo may prompt for password to run opensnoop\n";
 system("sudo -b opensnoop >$opensnoop 2>/dev/null");
 sleep(1) until -s $opensnoop;
 
-my $repo_root = join('/', dirname($FindBin::Bin), 'src', 'lima');
+my $repo_root = dirname($FindBin::Bin);
 for my $example (@ARGV) {
-    my $config = "$repo_root/examples/$example.yaml", ;
+    my $config = "$repo_root/src/lima/examples/$example.yaml", ;
     die "Config $config not found" unless -f $config;
     system("limactl delete -f $example") if -d "$ENV{HOME}/.lima/$example";
     system("limactl start --tty=false $config");
